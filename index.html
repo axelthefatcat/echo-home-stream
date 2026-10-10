@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Echo Home Stream</title>
+<meta name="description" content="Play your own private audio stream on Amazon Echo with a small Alexa skill and a Synology reverse proxy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbfaf8; --surface: #ffffff; --text: #1d1f23; --muted: #5d6470;
+    --border: #e4e2dd; --accent: #0b7285; --accent-soft: #e3f2f4;
+    --code-bg: #f3f1ec; --quote: #fff7e6; --quote-border: #f0b429;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121417; --surface: #1a1d21; --text: #e7e9ec; --muted: #9aa3ae;
+      --border: #2c3138; --accent: #4fc3d4; --accent-soft: #15333a;
+      --code-bg: #1f2328; --quote: #2a2416; --quote-border: #c99a2e;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.65 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .hero {
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--accent-soft), transparent);
+    padding: 56px 0 40px;
+  }
+  .hero-inner, main { max-width: 820px; margin: 0 auto; }
+  .hero-inner { padding: 0 16px; }
+  .eyebrow { color: var(--accent); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; }
+  .hero h1 { font-size: clamp(30px, 6vw, 44px); line-height: 1.15; margin: 10px 0 14px; letter-spacing: -0.02em; }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 0 22px; max-width: 640px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-block; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 15px;
+    text-decoration: none; border: 1px solid var(--border); color: var(--text); background: var(--surface);
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { .btn.primary { color: #0b1a1d; } }
+  main { padding: 8px 16px 80px; }
+  h2 { font-size: 26px; margin: 56px 0 12px; padding-top: 8px; letter-spacing: -0.01em; }
+  h3 { font-size: 19px; margin: 32px 0 8px; }
+  a { color: var(--accent); }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 40px 0; }
+  code { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: .88em; background: var(--code-bg); padding: 2px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; font-size: 13.5px; }
+  blockquote { margin: 18px 0; padding: 10px 16px; background: var(--quote); border-left: 4px solid var(--quote-border); border-radius: 0 8px 8px 0; }
+  blockquote p { margin: 6px 0; }
+  .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { background: var(--code-bg); font-weight: 600; }
+  li { margin: 4px 0; }
+  .loading { color: var(--muted); padding: 40px 0; }
+  footer { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Alexa skill + Synology guide</div>
+      <h1>Play your own audio stream on Amazon Echo</h1>
+      <p>A free, private Alexa skill and a Synology reverse proxy with a Let's Encrypt certificate: "Alexa, open home radio" and your Echo plays the stream from your home network.</p>
+      <div class="buttons">
+        <a class="btn primary" href="#part-1--synology-give-the-stream-an-https-address">Start the guide</a>
+        <a class="btn" href="skill/index.js">Skill code</a>
+        <a class="btn" href="skill/interaction-model.json">Interaction model</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="content"><p class="loading">Loading guide…</p></div>
+  </main>
+
+  <footer>MIT licensed. Not affiliated with Amazon or Synology.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script>
+    const slug = (t) => t.toLowerCase().trim()
+      .replace(/<[^>]+>/g, '').replace(/[^\w\s-]/g, '').replace(/\s/g, '-');
+
+    fetch('README.md')
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(md => {
+        const html = marked.parse(md, { gfm: true });
+        const box = document.getElementById('content');
+        box.innerHTML = html;
+        const title = box.querySelector('h1');
+        if (title) title.remove();   // the page header already shows it
+        box.querySelectorAll('h2, h3').forEach(h => { h.id = slug(h.textContent); });
+        box.querySelectorAll('table').forEach(t => {
+          const wrap = document.createElement('div');
+          wrap.className = 'table-wrap';
+          t.parentNode.insertBefore(wrap, t);
+          wrap.appendChild(t);
+        });
+        if (location.hash) {
+          const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+          if (target) target.scrollIntoView();
+        }
+      })
+      .catch(() => {
+        document.getElementById('content').innerHTML =
+          '<p>Couldn\'t load the guide here — <a href="README.md">read README.md instead</a>.</p>';
+      });
+  </script>
+</body>
+</html>
