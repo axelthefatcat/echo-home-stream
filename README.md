@@ -7,6 +7,8 @@ A step-by-step guide to playing a **private audio stream from your home network*
 
 > "Alexa, open home radio" → your Echo plays your stream.
 
+Read the write-up on [my website](https://www.matthews.casa/play-your-own-audio-stream-on-amazon-echo/), and find more home projects at [matthews.casa](https://www.matthews.casa/).
+
 The stream itself can come from anything that serves MP3 or AAC over HTTP on your network — an Icecast server, a media server, a Raspberry Pi, a PC app. This guide doesn't care what makes the audio; it gets that audio safely to your Echos.
 
 ---
